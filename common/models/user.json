@@ -13,7 +13,8 @@
   },
   "mixins": {
     "FullName": true,
-    "TimeStamp": true
+    "TimeStamp": true,
+    "Rediscache": {}
   },
   "restrictResetPasswordTokenScope": true,
   "emailVerificationRequired": true,
@@ -149,6 +150,15 @@
       "principalId": "editor",
       "permission": "ALLOW",
       "property": "*"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": [
+        "fetchData"
+      ]
     }
   ],
   "methods": {
@@ -168,6 +178,25 @@
       },
       "http": {
         "path": "/list",
+        "verb": "get"
+      }
+    },
+    "fetchData": {
+      "accepts": [
+        {
+          "arg": "req",
+          "type": "object",
+          "http": {
+            "source": "req"
+          }
+        }
+      ],
+      "returns": {
+        "arg": "data",
+        "type": "object"
+      },
+      "http": {
+        "path": "/data",
         "verb": "get"
       }
     },

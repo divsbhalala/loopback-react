@@ -1,4 +1,4 @@
-# loopback-react playground
+# loopback-react
 loopback (mongodb) - react, router, redux, axios, formik, bootstrap 4 (reactstrap) fullstack playground with authentication and user management
 
 This a full stack playground for developing a Loopback - React application. And it's _under the development_ still.

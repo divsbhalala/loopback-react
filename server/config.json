@@ -23,5 +23,9 @@
       "limit": "100kb"
     },
     "cors": false
+  },
+  "redis": {
+    "host": "127.0.0.1",
+    "password": ""
   }
 }

@@ -16,7 +16,7 @@ class App extends PureComponent {
         console.log('App render', this.state.me);
         return (
             <React.Fragment>
-                <Navbar/>
+              { /* <Navbar/>  */ }
                 <div className="page" data-spy="scroll" data-target="#navbar" data-offset="0">
                     {this.props.children}
                 </div>

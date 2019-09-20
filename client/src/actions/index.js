@@ -218,6 +218,24 @@ export const getProfile = (username) => {
   // });
 };
 
+export const getdata = (query) => {
+  return async (dispatch) => {
+     await axios.get(`${API_URL}/users/data?query=${query ? JSON.stringify(query) : JSON.stringify(query)}&cache=122`, {
+      headers: {authorization: localStorage.getItem('token')}
+    })
+      .then(response => {
+        console.log({
+          response
+        })
+        dispatch({type: type.DATA, payload: response.data.data.results});
+        return response.data.data.results;
+      })
+      .catch(error => {
+        dispatch(errorBeautifier(error))
+      });
+  }
+};
+
 export const getSession = (callback) => {
   const token = localStorage.getItem('token');
   const me = sessionStorage.getItem('me');

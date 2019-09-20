@@ -5,6 +5,7 @@ export const reducer = (state = {}, action) => {
         case SUCCESS:
             return {...state, error: '', message: action.payload};
         case DATA:
+            console.log({action});
             return {...state, error: '', message: '', data: action.payload};
         case FILE:
             return {...state, error: '', message: '', file: action.payload};

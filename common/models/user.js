@@ -1,5 +1,7 @@
 const config = require('../../server/config.json');
 const sharp = require('sharp');
+const queryString = require('query-string');
+var rp = require('request-promise');
 const nodemailer = require("nodemailer");
 const mandrillTransport = require('nodemailer-mandrill-transport');
 const from = config.fromMail;
@@ -419,5 +421,21 @@ module.exports = function (User) {
             cb(null, {items, count});
           });
       });
+  };
+  User.fetchData = function (req, cb) {
+    let {query, filter} = req.query;
+    query = JSON.parse(query);
+    if(query.number){
+      query.number = parseInt(query.number);
+    }
+    delete query.cache;
+    console.log({ query, filter}, `https://npiregistry.cms.hhs.gov/api/?version=2.1&${queryString.stringify(query)}`);
+    rp(`https://npiregistry.cms.hhs.gov/api/?version=2.1&${queryString.stringify(query)}`).then(resp => {
+      cb(null, JSON.parse(resp));
+    }).catch(erro => {
+      console.log({"error": erro});
+      cb(erro);
+    })
+    
   };
 };
