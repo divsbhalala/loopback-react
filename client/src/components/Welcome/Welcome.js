@@ -210,6 +210,8 @@ class Welcome extends Component {
         id: 'npi',
         accessor: 'number',
         filterable:false,
+        width: 110,
+        minResizeWidth: 10,
         Cell: props => <span className='number'>{props.value}</span>
       },
       {
@@ -217,6 +219,8 @@ class Welcome extends Component {
         id: 'name',
         accessor: 'basic.first_name',
         filterable:false,
+        width: 250,
+        minResizeWidth: 10,
         Cell: props => {
           return(<span className='number'>{`${props.original.basic.name}`}</span>)
         }
@@ -224,11 +228,15 @@ class Welcome extends Component {
       {
         Header: 'Credentials',
         accessor: 'basic.credential',
+        width: 150,
+        minResizeWidth: 10,
         Cell: props => <span className='number'>{props.original.basic.credential}</span>
       },
       {
         Header: 'City/State',
         accessor: 'cityState',
+        width: 200,
+        minResizeWidth: 10,
         Cell: props => {
           const address = _.find(props.original.addresses, {"address_purpose": "LOCATION"});
           if(address){
@@ -241,6 +249,8 @@ class Welcome extends Component {
       {
         Header: 'Taxonomy',
         accessor: 'taxonomy',
+        width: 450,
+        minResizeWidth: 10,
         Cell: props => {
           const taxonomies = props.original.taxonomies;
           if(taxonomies){
@@ -355,7 +365,6 @@ class Welcome extends Component {
             onFetchData={this.fetchData}
             defaultPageSize={products.length < 20 ? products.length : pageSize}
             className="-striped -highlight"
-            TbodyComponent={ this.bodyComponent}
           />
           }
         </div>

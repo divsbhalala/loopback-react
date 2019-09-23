@@ -70,6 +70,15 @@ header.intro {
 .rt-tbody{
   min-height: 100vh;
 }
+.-totalPages{
+  display: none;
+}
+.-pageInfo{
+  content: '';
+}
+.-pageJump{
+  display: inline-block;
+}
 @media(min-width:768px) {
   header.intro {
     .intro-text {
