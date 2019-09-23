@@ -5,48 +5,75 @@ header.intro-head {
     padding-top: 150px;
     padding-bottom: 100px;
   }
-  .container{
+  .container {
     text-align: left;
-    .penal-body{
-      .lead{
+    .penal-body {
+      .lead {
         width: 100%;
       }
     }
   }
+  .penal-title {
+    font-size: 20px !important;
+  }
+
+  .penalTitle {
+    font-size: 20px !important;
+  }
 
 }
-.m-l-15{
+
+.m-l-15 {
   margin-left: 15px;
 }
-.form-container{
+
+.form-container {
   padding: 15px;
   margin-bottom: 50px;
 }
-.text-left{
+
+.text-left {
   text-align: left;
 }
-.rt-tbody{
+
+.rt-tbody {
   min-height: 100vh;
 }
-.-totalPages{
+
+.-totalPages {
   display: none;
 }
-.-pageInfo{
+
+.-pageInfo {
   content: '';
 }
-.-pageJump{
+
+.-pageJump {
   display: inline-block;
 }
-.width-150{
+
+.width-150 {
   width: 150px;
 }
-@media (max-width: 1400px){
+
+.bglight {
+  background-color: #d9edf7 !important;
+}
+
+.penalTitle {
+  font-size: 20px !important;
+}
+
+.penalTitle {
+  font-size: 20px !important;
+}
+@media (max-width: 1400px) {
   .container {
     width: 1370px !important;
   }
 }
 
-@media(min-width:768px) {
+@media(min-width: 768px) {
   header.intro {
     .intro-text {
       padding-top: 200px;

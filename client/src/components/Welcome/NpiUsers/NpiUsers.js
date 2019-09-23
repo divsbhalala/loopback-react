@@ -1,13 +1,16 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
 import "react-table/react-table.css";
+import classnames from "classnames";
 import axios from "axios";
+import moment from "moment";
 
 import _ from "lodash";
 
 import {Col, Row} from "reactstrap";
 
 import "./NpiUsers.scss";
+import styles from  "./NpiUsers.scss";
 
 const CancelToken = axios.CancelToken;
 let cancel;
@@ -56,17 +59,22 @@ class NpiUsers extends Component {
     })
   };
   
+  getPostCode = (number) => {
+    const chuncks = number.match(/.{1,5}/g);
+   return  chuncks.join("-");
+  }
+  
   
   render() {
     const {products} = this.state;
     if (!products) {
       return (<div/>);
     }
-    console.log({products})
     const address = _.find(products.addresses, {"address_purpose": "LOCATION"});
+    const mailing_address = _.find(products.addresses, {"address_purpose": "MAILING"});
     // const postal_code = address && address.postal_code.splice(6, 0, '-');
-    var chuncks = address.postal_code.match(/.{1,5}/g);
-    var postal_code = chuncks.join("-");
+    const chuncks = address.postal_code.match(/.{1,5}/g);
+    const postal_code = chuncks.join("-");
     // const taxonomies = _.filter(products.taxonomies, {"primary": true});
     const taxonomies = products.taxonomies;
     const isOrg = products.enumeration_type === "NPI-2";
@@ -82,38 +90,45 @@ class NpiUsers extends Component {
                 <hr />
                 <div className="panel panel-primary">
                   <div className="panel-heading">
-                    <h2 className="panel-title">Contact Information</h2>
+                    <h2 className={classnames("panel-title penalTitle", styles.penalTitle)}>Contact Information</h2>
                   </div>
                   <div className="panel-body">
-                    <div className="col-md-8">
-                      <img src="https://s3.amazonaws.com/npidb/v2/user.png"
-                           className="img-responsive pull-right hidden-xs"
-                           data-src="https://s3.amazonaws.com/npidb/v2/user.png" alt="BAYLOR COLLEGE OF MEDICINE"/>
-                      <strong className="lead text-success" itemProp="name">
-                        {nameDesc}
-                      </strong>
-                      <address className="lead" style={{"paddingLeft": "20px"}} itemProp="address">
-                        <span>{address.address_1}</span><br />
-                        {address.address_2 && [<span>{address.address_2}</span>, <br />]}
-                        <span>{address.city}</span>, <span>{address.state}</span> &nbsp;&nbsp;
-                        <span>{address.postal_code}</span>
-                      </address>
-                      <span className="glyphicon glyphicon-phone-alt" title="Phone"></span> Phone: <span
-                      itemProp="telephone">{address.telephone_number}</span><br />
-                      <span className="glyphicon glyphicon-print" title="Fax"></span> Fax: <span
-                      itemProp="faxNumber">{address.fax_number}</span><br />
-                      <span className="glyphicon glyphicon-globe" title="Website"></span> Website:
-                      <div style={{height: "30px"}}></div>
+                    <div className="col-md-12">
+                      <div className="col-md-2">
+                        <img src="https://s3.amazonaws.com/npidb/v2/user.png"
+                             className="img-responsive  hidden-xs"
+                             data-src="https://s3.amazonaws.com/npidb/v2/user.png" alt="BAYLOR COLLEGE OF MEDICINE"/>
+                      </div>
+                      <div className="col-md-10">
+                        <strong className="lead text-success" itemProp="name">
+                          {nameDesc}
+                        </strong>
+                        <address className="lead" style={{"paddingLeft": "20px"}} itemProp="address">
+                          <span>{address.address_1}</span><br />
+                          {address.address_2 && [<span>{address.address_2}</span>, <br />]}
+                          <span>{address.city}</span>, <span>{address.state}</span> &nbsp;&nbsp;
+                          <span>{address.postal_code}</span>
+                        </address>
+                        <span className="glyphicon glyphicon-phone-alt" title="Phone"></span> Phone: <span
+                        itemProp="telephone">{address.telephone_number}</span><br />
+                        <span className="glyphicon glyphicon-print" title="Fax"></span> Fax: <span
+                        itemProp="faxNumber">{address.fax_number}</span><br />
+                        <span className="glyphicon glyphicon-globe" title="Website"></span> Website:
+                        <div style={{height: "30px"}}></div>
+                      </div>
+                      
+                    </div>
+                    <div className="col-md-12">
                       <div className="table-responsive">
                         <table className="table" style={{marginTop: "10px"}}>
                           <thead>
-                          <tr className="bg-warning">
+                          <tr className="bglight bg-warning">
                             <td>&nbsp;</td>
                             <td><h2 className="panel-title">Specialty</h2></td>
                             <td className="nowrap width-150">Taxonomy Code</td>
-                            <td className="nowrap width-150"><span title="Medicare Specialty Code">Specialty Code</span>
+                            <td className="nowrap width-150"><span title="Medicare Specialty Code">State</span>
                             </td>
-                            <td className="nowrap width-150"><span title="Medicare Provider Type">Provider Type</span>
+                            <td className="nowrap width-150"><span title="Medicare Provider Type">License</span>
                             </td>
                           </tr>
                           </thead>
@@ -133,12 +148,12 @@ class NpiUsers extends Component {
                                 <td>
                                   <span>{items.code}</span>
                                 </td>
-                                <td className="text-right"></td>
-                                <td></td>
+                                <td className="text-right">{items.state}</td>
+                                <td>{items.license}</td>
                               </tr>)
                             })
                           }
-                        
+      
                           </tbody>
                         </table>
                       </div>
@@ -148,12 +163,7 @@ class NpiUsers extends Component {
                       </small>
                       <div className="div20"></div>
                     </div>
-                    <div className="col-md-4">
-                      <div id="mapDiv" style={{"width": "100%", "maxHeight": "280px"}}>
-                        <iframe style={{"width": "100%", "border": 0}} height="280" id="map"
-                                src={`https://www.google.com/maps/embed/v1/place?q=${address.address_1}, ${address.city}, ${address.state} ${postal_code}, ${address.country_code}&key=AIzaSyCeasx-MyOIF_UmM5ic32GJRYrShBDGtko`}></iframe>
-                      </div>
-                    </div>
+                    
                     <div className="clearfix"></div>
                     <hr />
                   </div>
@@ -161,12 +171,12 @@ class NpiUsers extends Component {
               </Col>
             </Row>
             <div className="row">
-              <div className="col-md-8">
+             
+              <div className="col-md-6">
                 <div className="panel panel-info">
                   <div className="panel-heading">
-                    <h2 className="panel-title">
-                      NPI Profile &amp; details for
-                      &nbsp; {nameDesc} { !isOrg &&<span className="text-danger"> <span className="glyphicon glyphicon-user"></span> ({ products.basic.gender === "M"? "Male" : "Female"})</span> }</h2>
+                    <h2 className="panel-title penalTitle">
+                      NPI Profile &amp; details for&nbsp;{nameDesc}</h2>
                   </div>
                   <div className="panel-body">
                     <div>
@@ -174,12 +184,12 @@ class NpiUsers extends Component {
                         <table className="table">
                           <tbody>
                           <tr>
-                            <td className="bg-warning text-nowrap"><strong>NPI #</strong></td>
+                            <td className="bglight bg-warning text-nowrap"><strong>NPI #</strong></td>
                             <td style={{"width": "100%"}}><code className="lead">{products.number}</code></td>
                           </tr>
                           { isOrg &&
                           <tr>
-                            <td className="bg-warning nowrap"><strong>LBN</strong>
+                            <td className="bglight bg-warning nowrap"><strong>LBN</strong>
                               <small>Legal business name</small>
                             </td>
                             <td><span>{products.basic.name}</span></td>
@@ -187,7 +197,7 @@ class NpiUsers extends Component {
                           }
                           { isOrg &&
                           <tr>
-                            <td className="bg-warning nowrap"><strong>Authorized official</strong></td>
+                            <td className="bglight bg-warning nowrap"><strong>Authorized official</strong></td>
                             <td>
                               <span>
                                 {products.basic.authorized_official_first_name} {products.basic.authorized_official_last_name}
@@ -196,26 +206,78 @@ class NpiUsers extends Component {
                             </td>
                           </tr>
                           }
+                          
                           { !isOrg &&
                           <tr>
-                            <td className="bg-warning"><strong>Status</strong></td>
+                            <td className="bglight bg-warning"><strong>Status</strong></td>
                             <td><span>{products.basic.status === "A" ? "Active" : "De-active"}</span></td>
                           </tr>
                           }
                           { !isOrg &&
                           <tr>
-                            <td className="bg-warning"><strong>Credentials</strong></td>
+                            <td className="bglight bg-warning"><strong>Credentials</strong></td>
                             <td><span>{products.basic.credentials}</span></td>
                           </tr>
                           }
-                          
+                          { !isOrg &&
                           <tr>
-                            <td className="bg-warning"><strong>Entity</strong></td>
+                            <td className="bglight bg-warning"><strong>Gender</strong></td>
+                            <td><span>{ products.basic.gender === "M"? "Male" : "Female"}</span></td>
+                          </tr>
+                          }
+                          <tr>
+                            <td className="bglight bg-warning nowrap"><strong>Mailing Address</strong></td>
+                            <td>
+                              <span>
+                                {mailing_address.address_1},< br />
+                                {mailing_address.city}, {mailing_address.state} {this.getPostCode(mailing_address.postal_code)}< br />
+                                Phone: {mailing_address.telephone_number} | Fax: {mailing_address.fax_number}
+  
+                                < br />
+                                <a target="_blank" href={`https://maps.google.com/?q=${mailing_address.address_1}, ${mailing_address.city}, ${mailing_address.state} ${this.getPostCode(mailing_address.postal_code)}, ${mailing_address.country_code}`}>
+                                View on map</a>
+                              </span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="bglight bg-warning nowrap"><strong>Primary Practice Address</strong></td>
+                            <td>
+                              <span>
+                                {address.address_1},< br />
+                                {address.city}, {address.state} {postal_code}< br />
+                                Phone: {address.telephone_number} | Fax: {address.fax_number}
+                              </span>
+                              <br />
+                              <a target="_blank" href={`https://maps.google.com/?q=${address.address_1}, ${address.city}, ${address.state} ${this.getPostCode(address.postal_code)}, ${address.country_code}`}>
+                                View on map</a>
+                            </td>
+                          </tr>
+                          {
+                            _.map(products.practiceLocations, (location, index) =>{
+                              return(
+                                <tr>
+                                  <td className="bglight bg-warning nowrap"><strong>Practice Address{index + 1}</strong></td>
+                                  <td>
+                                <span>
+                                  {location.address_1},< br />
+                                  {location.city}, {location.state} {this.getPostCode(location.postal_code)}< br />
+                                  Phone: {location.telephone_number} | Fax: {location.fax_number}
+                                </span>
+                                    <br />
+                                    <a target="_blank" href={`https://maps.google.com/?q=${location.address_1}, ${location.city}, ${location.state} ${this.getPostCode(location.postal_code)}, ${location.country_code}`}>
+                                      View on map</a>
+                                  </td>
+                                </tr>
+                              )
+                            })
+                          }
+                          <tr>
+                            <td className="bglight bg-warning"><strong>Entity</strong></td>
                             <td><span>{isOrg ? "Organization": "Individual"}</span></td>
                           </tr>
                           { isOrg &&
                           <tr>
-                            <td className="bg-warning nowrap"><strong>Organization subpart</strong> <sup>1</sup></td>
+                            <td className="bglight bg-warning nowrap"><strong>Organization subpart</strong> <sup>1</sup></td>
                             <td>
                               <span>
                                 {products.basic.organizational_subpart}
@@ -224,29 +286,37 @@ class NpiUsers extends Component {
                           </tr>
                           }
                           <tr>
-                            <td className="bg-warning nowrap"><strong>Enumeration date</strong></td>
+                            <td className="bglight bg-warning nowrap"><strong>Enumeration date</strong></td>
                             <td style={{"width": "100%"}}><span>{products.basic.enumeration_date}</span></td>
                           </tr>
                           <tr>
-                            <td className="bg-warning nowrap text-nowrap"><strong>Last updated</strong></td>
+                            <td className="bglight bg-warning nowrap text-nowrap"><strong>Last updated</strong></td>
                             <td>
-                              <span>{products.basic.last_updated} - <small>About 8 years ago</small></span>
+                              <span>{products.basic.last_updated} - <small>About&nbsp; {moment(moment(products.basic.last_updated)).fromNow()}</small></span>
                             </td>
                           </tr>
                           { !isOrg &&
                           <tr>
-                            <td className="bg-warning nowrap text-nowrap"><strong>Sole proprietor</strong></td>
+                            <td className="bglight bg-warning nowrap text-nowrap"><strong>Sole proprietor</strong></td>
                             <td>
                               <span>{products.basic.sole_proprietor} </span>
                             </td>
                           </tr>
                           }
                           <tr>
-                            <td className="bg-warning"><strong>Identifiers</strong></td>
+                            <td className="bglight bg-warning"><strong>Identifiers</strong></td>
                             <td>
                               <div className="table-not-responsive">
                                 {products.identifiers.length <= 0 ? "Not Available" :
                                   <table className="table table-condensed">
+                                    <thead>
+                                      <tr>
+                                        <th>State</th>
+                                        <th>Name</th>
+                                        <th>Identifier</th>
+                                        <th>Issuer</th>
+                                      </tr>
+                                    </thead>
                                     <tbody>
                                     {
                                       _.map(products.identifiers, identifiers => {
@@ -268,7 +338,7 @@ class NpiUsers extends Component {
                           </tr>
                           { !isOrg &&
                           <tr>
-                            <td className="bg-warning text-nowrap"><strong>Hospital affiliation(s)</strong></td>
+                            <td className="bglight bg-warning text-nowrap"><strong>Hospital affiliation(s)</strong></td>
                             <td>
                               <div className="table-not-responsive">
                                 Not Available
@@ -296,6 +366,10 @@ class NpiUsers extends Component {
                     </small>
                   </div>
                 </div>
+              </div>
+              <div className="col-md-6">
+                <iframe style={{"width": "100%", "border": 0}} height="550" id="map"
+                        src={`https://www.google.com/maps/embed/v1/place?q=${address.address_1}, ${address.city}, ${address.state} ${postal_code}, ${address.country_code}&key=AIzaSyCeasx-MyOIF_UmM5ic32GJRYrShBDGtko`}></iframe>
               </div>
             </div>
         
