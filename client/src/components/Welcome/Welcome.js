@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import {Link} from 'react-router-dom';
 import _ from 'lodash';
 import classnames from 'classnames';
 import {getdata} from "../../actions";
@@ -222,7 +223,11 @@ class Welcome extends Component {
         width: 250,
         minResizeWidth: 10,
         Cell: props => {
-          return(<span className='number'>{`${props.original.basic.name}`}</span>)
+          return(
+            <span className='number'>
+              <Link to={`users/${props.original.number}`}>{`${props.original.basic.name}`}</Link>
+            </span>
+          )
         }
       },
       {

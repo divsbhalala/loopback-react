@@ -7,6 +7,7 @@ import SignOut from '../components/Auth/SignOut';
 import Reset from '../components/Auth/Reset';
 import NewPassword from '../components/Auth/NewPassword';
 import Welcome from '../components/Welcome';
+import NpiUsers from '../components/Welcome/NpiUsers';
 import Features from '../components/Features';
 import Home from '../components/Home';
 import Profile from '../components/Profile';
@@ -23,6 +24,7 @@ const Routes = () => {
     <App>
       <Switch>
         <Route exact path="/" component={Welcome}/>
+        <Route exact path="/users/:id" component={NpiUsers}/>
         <Route exact path="/features" component={Features}/>
         <Route exact path="/tos" component={TermsOfService}/>
         <Route exact path="/privacy" component={PrivacyPolicy}/>
@@ -36,7 +38,7 @@ const Routes = () => {
         <Route exact path="/profile" component={Profile} username="me"/>
         <Route exact path="/settings/:page?" component={Settings}/>
         <Route exact path="/users/:page?/:id?" component={Users}/>
-        <Route exact path="/users/:id" component={User}/>
+        { /* <Route exact path="/users/:id" component={User}/> */ }
         <Route exact path="/users/:id/edit" component={UserEdit}/>
 
         <Route exact path="/:username" component={Profile}/>
