@@ -10,6 +10,7 @@ import ReactTable from 'react-table';
 import "react-table/react-table.css";
 import axios from 'axios';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { CSVLink, CSVDownload } from "react-csv";
 
 import { Button, Form, FormGroup, Label, Input, FormText, Row, Col,
   TabContent, TabPane, Nav, NavItem, NavLink, Card, CardTitle, CardText
@@ -116,6 +117,23 @@ class Welcome extends Component {
     this.setState({
       loading: false,
       products: sortedData,
+      results: sortedData.map(item => {
+        const address = _.find(item.addresses, {"address_purpose": "LOCATION"});
+        const taxonomies = item.taxonomies;
+        let tmp = '';
+        if(taxonomies){
+          taxonomies.map(taxonomie =>
+            tmp += `${taxonomie.code} - ${taxonomie.desc},`
+          );
+        }
+        return {
+          "NPI Number": item.number,
+          "Name": item.basic.name,
+          "Credential": item.basic.credential,
+          "City/State": `${address.city}, ${address.state}`,
+          "Taxonomie": tmp,
+        };
+      }),
       pages: sortedData ? Math.ceil(sortedData.length/0) : 1
     })
   };
@@ -202,7 +220,7 @@ class Welcome extends Component {
   }
   
   render() {
-    const { loading , products, pages, pageSize, searched, activeTab} = this.state;
+    const { loading , products, pages, pageSize, searched, activeTab, results} = this.state;
     // const { products } = this.props;
     const isSearchByOrg = activeTab === '1';
     const columns = [
@@ -360,6 +378,7 @@ class Welcome extends Component {
           
         </div>
         <div className="container">
+          {searched && <CSVLink data={results || []} target="_blank" filename={"my-file.csv"} >Export as CSV</CSVLink> }
           {searched &&
           <ReactTable
             manual
