@@ -21,7 +21,7 @@ import { AvForm, AvField } from 'availity-reactstrap-validation';
 const CancelToken = axios.CancelToken;
 let cancel;
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = 'http://54.174.244.177:3003/api';
 
 class Welcome extends Component {
   constructor(props) {

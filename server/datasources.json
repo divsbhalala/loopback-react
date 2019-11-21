@@ -3,14 +3,6 @@
     "name": "memory",
     "connector": "memory"
   },
-  "mongo": {
-    "name": "mongo",
-    "url": "mongodb://127.0.0.1:27017/loopback-react",
-    "password": "",
-    "user": "",
-    "useNewUrlParser": "true",
-    "connector": "mongodb"
-  },
   "storage": {
     "name": "storage",
     "connector": "loopback-component-storage",

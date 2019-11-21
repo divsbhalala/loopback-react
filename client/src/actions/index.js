@@ -3,8 +3,8 @@ import axios from 'axios';
 import History from '../history.js';
 import * as type from './types';
 
-const API_URL = process.env.REACT_APP_API_URL;
-const FILE_URL = process.env.REACT_APP_FILE_URL;
+const API_URL = 'http://54.174.244.177:3003/api';
+const FILE_URL = 'http://54.174.244.177:3003';
 let TOKEN = localStorage.getItem('token');
 let UID = localStorage.getItem('uid');
 

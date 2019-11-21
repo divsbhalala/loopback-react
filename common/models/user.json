@@ -13,8 +13,7 @@
   },
   "mixins": {
     "FullName": true,
-    "TimeStamp": true,
-    "Rediscache": {}
+    "TimeStamp": true
   },
   "restrictResetPasswordTokenScope": true,
   "emailVerificationRequired": true,

@@ -4,6 +4,7 @@ import "react-table/react-table.css";
 import classnames from "classnames";
 import axios from "axios";
 import moment from "moment";
+import { CSVLink, CSVDownload } from "react-csv";
 
 import _ from "lodash";
 
@@ -15,7 +16,7 @@ import styles from  "./NpiUsers.scss";
 const CancelToken = axios.CancelToken;
 let cancel;
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = 'http://54.174.244.177:3003/api';
 
 class NpiUsers extends Component {
   constructor(props) {
@@ -52,10 +53,114 @@ class NpiUsers extends Component {
       })
     });
     console.log({d: response.data.data.results})
+    
     const sortedData = response.data.data && response.data.data.results ? response.data.data.results[0] : {};
+    const isOrg = sortedData.enumeration_type === "NPI-2";
+    const nameDesc = isOrg ? sortedData.basic.name : `${sortedData.basic.first_name} ${sortedData.basic.middle_name} ${sortedData.basic.last_name}`;
+    let data = {};
+    let stringData = {}
+    let gender = '';
+    switch(sortedData.basic.gender) {
+      case 'M':
+        gender = 'Male';
+        break;
+      case 'F':
+        gender = 'FeMale';
+        break;
+      case 'O':
+        gender = 'Other';
+        break;
+      default:
+        gender = 'unknown';
+    }
+    if(isOrg){
+      data = {
+        "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        // from Resource: id, meta, implicitRules, and language
+        // from DomainResource: text, contained, extension, and modifierExtension
+        "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
+        "active" : sortedData.basic.status === "A", // Whether the organization's record is still in active use
+        "type" : 'prov', // Kind of organization
+        "name" : nameDesc, // C? Name used for the organization
+        "alias" : [""], // A list of alternate names that the organization is known as, or was known as in the past
+        "telecom" : [{
+          authorized_official_credential: sortedData.basic.authorized_official_credential,
+          authorized_official_first_name: sortedData.basic.authorized_official_first_name,
+          authorized_official_last_name: sortedData.basic.authorized_official_last_name,
+          authorized_official_telephone_number: sortedData.basic.authorized_official_telephone_number,
+          authorized_official_title_or_position: sortedData.basic.authorized_official_title_or_position,
+        }], // C? A contact detail for the organization
+        "address" : sortedData.addresses, // C? An address for the organization
+        "contact" : sortedData.addresses,
+        "endpoint" : [{  }] // Technical endpoints providing access to services operated for the organization
+      };
+      stringData = {
+        "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        // from Resource: id, meta, implicitRules, and language
+        // from DomainResource: text, contained, extension, and modifierExtension
+        "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
+        "active" : sortedData.basic.status === "A", // Whether the organization's record is still in active use
+        "type" : 'prov', // Kind of organization
+        "name" : nameDesc, // C? Name used for the organization
+        "alias" : [""], // A list of alternate names that the organization is known as, or was known as in the past
+        authorized_official_credential: sortedData.basic.authorized_official_credential,
+        authorized_official_first_name: sortedData.basic.authorized_official_first_name,
+        authorized_official_last_name: sortedData.basic.authorized_official_last_name,
+        authorized_official_telephone_number: sortedData.basic.authorized_official_telephone_number,
+        authorized_official_title_or_position: sortedData.basic.authorized_official_title_or_position,
+      }
+      _.map(sortedData.addresses, (address, index) => {
+        _.forEach(address, function(value, key) {
+          stringData[`address_${index + 1} ${key}`] = value;
+        });
+      });
+    }
+    else {
+      data = {
+        "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        // from Resource: id, meta, implicitRules, and language
+        // from DomainResource: text, contained, extension, and modifierExtension
+        "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
+        "active" : sortedData.basic.status === "A", // Whether the organization's record is still in active use
+        "name" : nameDesc, // C? Name used for the organization
+        "telecom" : sortedData.addresses, // C? A contact detail for the organization
+        "address" : sortedData.addresses, // C? An address for the organization
+        "gender" : gender, // male | female | other | unknown
+        "birthDate" : "", // The date  on which the practitioner was born
+        // "photo" : [{  }], // Image of the person
+        // "qualification" : [{ // Certification, licenses, or training pertaining to the provision of care
+        //   "identifier" : [{ }], // An identifier for this qualification for the practitioner
+        //   "code" : {  }, // R!  Coded representation of the qualification
+        //   "period" : {  }, // Period during which the qualification is valid
+        //   "issuer" : {} // Organization that regulates and issues the qualification
+        // }],
+        "communication" : [{  }] // A language the practitioner can use in patient communication
+      };
+      stringData = {
+        "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        // from Resource: id, meta, implicitRules, and language
+        // from DomainResource: text, contained, extension, and modifierExtension
+        // "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
+        "active" : sortedData.basic.status === "A", // Whether the organization's record is still in active use
+        "name" : nameDesc, // C? Name used for the organization
+        "gender" : gender, // male | female | other | unknown
+      }
+      _.forEach(sortedData.identifiers, function(value, key) {
+        stringData[`identifier  ${key}`] = value;
+      });
+      
+      _.map(sortedData.addresses, (address, index) => {
+        _.forEach(address, function(value, key) {
+          stringData[`address_${index + 1} ${key}`] = value;
+        });
+      });
+    }
+   
     this.setState({
       loading: false,
       products: sortedData,
+      stringData: [stringData],
+      json: data
     })
   };
   
@@ -64,9 +169,19 @@ class NpiUsers extends Component {
    return  chuncks.join("-");
   }
   
+  onJsonDownload = (storageObj) => {
+    const isOrg = storageObj.enumeration_type === "NPI-2";
+    const nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state.json || storageObj));
+    var dlAnchorElem = document.getElementById('downloadCSV');
+    dlAnchorElem.setAttribute("href",     dataStr     );
+    dlAnchorElem.setAttribute("download", `${nameDesc}.json`);
+    dlAnchorElem.click();
+  }
+  
   
   render() {
-    const {products} = this.state;
+    const {products, json, stringData} = this.state;
     if (!products) {
       return (<div/>);
     }
@@ -114,7 +229,11 @@ class NpiUsers extends Component {
                         <span className="glyphicon glyphicon-print" title="Fax"></span> Fax: <span
                         itemProp="faxNumber">{address.fax_number}</span><br />
                         <span className="glyphicon glyphicon-globe" title="Website"></span> Website:
-                        <div style={{height: "30px"}}></div>
+                        <br />
+                        {products &&  <button className="btn btn-primary" onClick={() => {this.onJsonDownload(products);}} >Export as JSON</button> }
+                        {products && stringData &&  <CSVLink className="btn btn-info ml-15" data={ stringData || []} target="_blank" filename={`${nameDesc}.csv`} >Export as CSV</CSVLink> }
+                        <a id="downloadCSV" className="hide" />
+                        <div style={{height: "30px"}}></div> <br />
                       </div>
                       
                     </div>
@@ -369,7 +488,7 @@ class NpiUsers extends Component {
               </div>
               <div className="col-md-6">
                 <iframe style={{"width": "100%", "border": 0}} height="550" id="map"
-                        src={`https://www.google.com/maps/embed/v1/place?q=${address.address_1}, ${address.city}, ${address.state} ${postal_code}, ${address.country_code}&key=AIzaSyCeasx-MyOIF_UmM5ic32GJRYrShBDGtko`}></iframe>
+                        src={`https://www.google.com/maps/embed/v1/place?q=${address.address_1}, ${address.city}, ${address.state} ${postal_code}, ${address.country_code}&key=AIzaSyDqxmTSwRFA9OOzLYP38Eqp1C9R8UlrIxo`}></iframe>
               </div>
             </div>
         

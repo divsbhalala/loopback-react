@@ -10,43 +10,42 @@
       "loopback/common/mixins",
       "loopback/server/mixins",
       "../common/mixins",
-      "./mixins",
-      "../node_modules/loopback-redis-cache"
+      "./mixins"
     ]
   },
   "User": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": false
   },
   "AccessToken": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": true
   },
   "UserCredential": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": false
   },
   "UserIdentity": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": false
   },
   "ACL": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": false
   },
   "RoleMapping": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": false,
     "options": {
       "strictObjectIDCoercion": true
     }
   },
   "Role": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": false
   },
   "user": {
-    "dataSource": "mongo",
+    "dataSource": "memory",
     "public": true,
     "options": {
       "emailVerificationRequired": true
