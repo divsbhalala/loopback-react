@@ -5,10 +5,13 @@
   "dependencies": {
     "availity-reactstrap-validation": "^2.6.0",
     "axios": "^0.19.0",
+    "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",
     "bootstrap": "^4.3.1",
     "bootstrap-sass": "^3.4.1",
     "classnames": "^2.2.6",
+    "core-js": "^3.4.2",
+    "es6-promise": "^4.2.8",
     "form-serialize": "^0.7.2",
     "formik": "^1.5.8",
     "git": "^0.1.5",
@@ -22,6 +25,7 @@
     "push": "^0.1.1",
     "qs": "^6.7.0",
     "react": "^16.8.6",
+    "react-app-polyfill": "^1.0.4",
     "react-check-auth": "^0.2.0-alpha.2",
     "react-csv": "^1.1.1",
     "react-custom-scrollbars": "^4.2.1",
@@ -37,6 +41,7 @@
     "redux": "^4.0.4",
     "redux-promise": "^0.6.0",
     "redux-thunk": "^2.3.0",
+    "regenerator-runtime": "^0.13.3",
     "yup": "^0.27.0"
   },
   "scripts": {

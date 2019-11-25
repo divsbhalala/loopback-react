@@ -269,7 +269,7 @@ class NpiUsers extends Component {
                           <tbody>
                           {
                             _.map(taxonomies, items => {
-                              return (<tr>
+                              return (<tr key={items.code}>
                                 <td>
                                   {items.primary &&
                                   <span className="glyphicon glyphicon-star" title="Primary Specialty"></span>}
@@ -459,7 +459,7 @@ class NpiUsers extends Component {
                                             <td style={{"border":0}}>{identifiers.state}</td>
                                             <td style={{"border":0}} className="nowrap">{identifiers.desc} #</td>
                                             <td style={{"border":0}}><span className="text-danger nowrap">{identifiers.identifier}</span></td>
-                                            <td style={{"border": 0, "width": "100%;"}}>{identifiers.issuer}</td>
+                                            <td style={{"border": 0, "width": "100%"}}>{identifiers.issuer}</td>
                                           </tr>
                                         )
                                       })

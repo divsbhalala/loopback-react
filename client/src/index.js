@@ -14,7 +14,13 @@ import {getSession} from './actions';
 import * as type from "./actions/types";
 
 import * as serviceWorker from './serviceWorker';
-
+import 'react-app-polyfill/ie11';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+// import 'react-app-polyfill/ie11';
+import 'core-js/features/array/find';
+import 'core-js/features/array/includes';
+import 'core-js/features/number/is-nan';
 /*
 // UNCOMMENT IT FOR PRODUCTION
 const createStoreWithMiddleware = applyMiddleware(reduxThunk)(createStore);
