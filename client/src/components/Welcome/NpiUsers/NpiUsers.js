@@ -12,7 +12,7 @@ import {Col, Row} from "reactstrap";
 
 import "./NpiUsers.scss";
 import styles from  "./NpiUsers.scss";
-
+import headerImg from "./../fb_final_01.jpg";
 const CancelToken = axios.CancelToken;
 let cancel;
 
@@ -65,7 +65,7 @@ class NpiUsers extends Component {
         gender = 'Male';
         break;
       case 'F':
-        gender = 'FeMale';
+        gender = 'Female';
         break;
       case 'O':
         gender = 'Other';
@@ -111,7 +111,13 @@ class NpiUsers extends Component {
       }
       _.map(sortedData.addresses, (address, index) => {
         _.forEach(address, function(value, key) {
-          stringData[`address_${index + 1} ${key}`] = value;
+          if(key === 'postal_code'){
+            stringData[`address_${index + 1} ${key}`] =  value.substring(0,5);
+          }
+          else
+          {
+            stringData[`address_${index + 1} ${key}`] = value;
+          }
         });
       });
     }
@@ -151,7 +157,13 @@ class NpiUsers extends Component {
       
       _.map(sortedData.addresses, (address, index) => {
         _.forEach(address, function(value, key) {
-          stringData[`address_${index + 1} ${key}`] = value;
+          if(key === 'postal_code'){
+            stringData[`address_${index + 1} ${key}`] =  value.substring(0,5);
+          }
+          else
+          {
+            stringData[`address_${index + 1} ${key}`] = value;
+          }
         });
       });
     }
@@ -172,7 +184,7 @@ class NpiUsers extends Component {
   onJsonDownload = (storageObj) => {
     const isOrg = storageObj.enumeration_type === "NPI-2";
     const nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state.json || storageObj));
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
     var dlAnchorElem = document.getElementById('downloadCSV');
     dlAnchorElem.setAttribute("href",     dataStr     );
     dlAnchorElem.setAttribute("download", `${nameDesc}.json`);
@@ -201,14 +213,16 @@ class NpiUsers extends Component {
           <div className="form-container">
             <Row>
               <Col>
-                <h2>NPI Lookup Search</h2>
+                <div>
+                  <img src={headerImg} style={{"width": "100%"}} />
+                </div>
                 <hr />
                 <div className="panel panel-primary">
                   <div className="panel-heading">
                     <h2 className={classnames("panel-title penalTitle", styles.penalTitle)}>Contact Information</h2>
                   </div>
                   <div className="panel-body">
-                    <div className="col-md-12">
+                    <div className="col-md-12 inline-block" style={{"display": "inline-block"}}>
                       <div className="col-md-2">
                         <img src="https://s3.amazonaws.com/npidb/v2/user.png"
                              className="img-responsive  hidden-xs"

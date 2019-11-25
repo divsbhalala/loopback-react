@@ -11,7 +11,7 @@ import "react-table/react-table.css";
 import axios from 'axios';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { CSVLink, CSVDownload } from "react-csv";
-
+import headerImg from "./fb_final_01.jpg";
 import { Button, Form, FormGroup, Label, Input, FormText, Row, Col,
   TabContent, TabPane, Nav, NavItem, NavLink, Card, CardTitle, CardText
 } from 'reactstrap';
@@ -293,7 +293,9 @@ class Welcome extends Component {
           <div className="form-container">
             <Row>
               <Col>
-                <h2>NPI Lookup Search</h2>
+                <div>
+                  <img src={headerImg} style={{"width": "100%"}} />
+                </div>
                 <hr />
               </Col>
             </Row>
