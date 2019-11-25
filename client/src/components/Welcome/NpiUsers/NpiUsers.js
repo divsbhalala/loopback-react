@@ -183,10 +183,11 @@ class NpiUsers extends Component {
   
   onJsonDownload = (storageObj) => {
     const isOrg = storageObj.enumeration_type === "NPI-2";
-    const nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
+    let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
     var dlAnchorElem = document.getElementById('downloadCSV');
     dlAnchorElem.setAttribute("href",     dataStr     );
+    nameDesc = nameDesc.replace(/ /g,"_")
     dlAnchorElem.setAttribute("download", `${nameDesc}.json`);
     dlAnchorElem.click();
   }
