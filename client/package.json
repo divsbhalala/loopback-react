@@ -12,6 +12,7 @@
     "classnames": "^2.2.6",
     "core-js": "^3.4.2",
     "es6-promise": "^4.2.8",
+    "file-saver": "^2.0.2",
     "form-serialize": "^0.7.2",
     "formik": "^1.5.8",
     "git": "^0.1.5",

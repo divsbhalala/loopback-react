@@ -5,6 +5,7 @@ import classnames from "classnames";
 import axios from "axios";
 import moment from "moment";
 import { CSVLink, CSVDownload } from "react-csv";
+import { saveAs } from 'file-saver';
 
 import _ from "lodash";
 
@@ -181,7 +182,7 @@ class NpiUsers extends Component {
    return  chuncks.join("-");
   }
   
-  onJsonDownload = (storageObj) => {
+  onJsonDownload1 = (storageObj) => {
     const isOrg = storageObj.enumeration_type === "NPI-2";
     let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
@@ -190,6 +191,23 @@ class NpiUsers extends Component {
     nameDesc = nameDesc.replace(/ /g,"_")
     dlAnchorElem.setAttribute("download", `${nameDesc}.json`);
     dlAnchorElem.click();
+  }
+  
+  
+  onJsonDownload = (storageObj) => {
+    const isOrg = storageObj.enumeration_type === "NPI-2";
+    let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
+    nameDesc = nameDesc.replace(/ /g,"_")
+    var fileName = `${nameDesc}.json`;
+
+    // Create a blob of the data
+    var fileToSave = new Blob([JSON.stringify(storageObj)], {
+      type: 'application/json',
+      name: fileName
+    });
+
+    // Save the file
+    saveAs(fileToSave, fileName);
   }
   
   
