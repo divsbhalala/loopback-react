@@ -6251,8 +6251,33 @@ h2.penal-title {
 
 @media (min-width: 1400px){
   .container {
-    width: 13-0px !important;
+    //width: 1300px !important;
     min-width: 1300px !important;
+  }
+}
+
+@media (max-width: 1248px){
+  .container {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}
+@media (max-width: 40em){
+  .responsiveTable td .tdBefore {
+    //background-color: #d9edf7 !important;
+  }
+  .detail-table > .responsiveTable > td.pivoted{
+    padding-left: 10px !important;
+  }
+  div.table-responsive.detail-table > table > tbody > tr{
+    border: none !important;
+  }
+  div.table-responsive.detail-table > table > tbody > tr > td.pivoted{
+    padding-left: 10px !important;
+  }
+  .detail-table .table.responsiveTable{
+    width: 100%;
+    display: inline-block;
   }
 }
 .nowrap {

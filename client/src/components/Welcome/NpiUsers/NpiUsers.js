@@ -6,6 +6,9 @@ import axios from "axios";
 import moment from "moment";
 import { CSVLink, CSVDownload } from "react-csv";
 import { saveAs } from 'file-saver';
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
+import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
+
 
 import _ from "lodash";
 
@@ -57,7 +60,7 @@ class NpiUsers extends Component {
     
     const sortedData = response.data.data && response.data.data.results ? response.data.data.results[0] : {};
     const isOrg = sortedData.enumeration_type === "NPI-2";
-    const nameDesc = isOrg ? sortedData.basic.name : `${sortedData.basic.first_name} ${sortedData.basic.middle_name} ${sortedData.basic.last_name}`;
+    const nameDesc = isOrg ? sortedData.basic.name : `${sortedData.basic.first_name} ${sortedData.basic.middle_name || ''} ${sortedData.basic.last_name}`;
     let data = {};
     let stringData = {}
     let gender = '';
@@ -77,6 +80,8 @@ class NpiUsers extends Component {
     if(isOrg){
       data = {
         "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        "entity" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        "NPI" : sortedData.number, // C? Identifies this organization  across multiple systems
         // from Resource: id, meta, implicitRules, and language
         // from DomainResource: text, contained, extension, and modifierExtension
         "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
@@ -97,6 +102,8 @@ class NpiUsers extends Component {
       };
       stringData = {
         "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        "entity" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        "NPI" : sortedData.number, // C? Identifies this organization  across multiple systems
         // from Resource: id, meta, implicitRules, and language
         // from DomainResource: text, contained, extension, and modifierExtension
         "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
@@ -110,6 +117,17 @@ class NpiUsers extends Component {
         authorized_official_telephone_number: sortedData.basic.authorized_official_telephone_number,
         authorized_official_title_or_position: sortedData.basic.authorized_official_title_or_position,
       }
+  
+      _.forEach(sortedData.identifiers, function(identifiers, index) {
+        _.forEach(identifiers, function(value, key) {
+          stringData[`identifiers_${index + 1} ${key}`] = value;
+        })
+      });
+      _.forEach(sortedData.taxonomies, function(taxonomies, index) {
+        _.forEach(taxonomies, function(value, key) {
+          stringData[`taxonomies_${index + 1} ${key}`] = value;
+        })
+      });
       _.map(sortedData.addresses, (address, index) => {
         _.forEach(address, function(value, key) {
           if(key === 'postal_code'){
@@ -125,8 +143,10 @@ class NpiUsers extends Component {
     else {
       data = {
         "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        "entity" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
         // from Resource: id, meta, implicitRules, and language
         // from DomainResource: text, contained, extension, and modifierExtension
+        "NPI" : sortedData.number, // C? Identifies this organization  across multiple systems
         "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
         "active" : sortedData.basic.status === "A", // Whether the organization's record is still in active use
         "name" : nameDesc, // C? Name used for the organization
@@ -145,6 +165,8 @@ class NpiUsers extends Component {
       };
       stringData = {
         "resourceType" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        "entity" : sortedData.enumeration_type === "NPI-2" ? "Organization" : "Practitioner",
+        "NPI" : sortedData.number, // C? Identifies this organization  across multiple systems
         // from Resource: id, meta, implicitRules, and language
         // from DomainResource: text, contained, extension, and modifierExtension
         // "identifier" : sortedData.identifiers, // C? Identifies this organization  across multiple systems
@@ -152,8 +174,16 @@ class NpiUsers extends Component {
         "name" : nameDesc, // C? Name used for the organization
         "gender" : gender, // male | female | other | unknown
       }
-      _.forEach(sortedData.identifiers, function(value, key) {
-        stringData[`identifier  ${key}`] = value;
+ 
+      _.forEach(sortedData.identifiers, function(identifiers, index) {
+        _.forEach(identifiers, function(value, key) {
+          stringData[`identifiers_${index + 1} ${key}`] = value;
+        })
+      });
+      _.forEach(sortedData.taxonomies, function(taxonomies, index) {
+        _.forEach(taxonomies, function(value, key) {
+          stringData[`taxonomies_${index + 1} ${key}`] = value;
+        })
       });
       
       _.map(sortedData.addresses, (address, index) => {
@@ -184,7 +214,7 @@ class NpiUsers extends Component {
   
   onJsonDownload1 = (storageObj) => {
     const isOrg = storageObj.enumeration_type === "NPI-2";
-    let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
+    let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name || ''} ${storageObj.basic.last_name}`;
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(storageObj));
     var dlAnchorElem = document.getElementById('downloadCSV');
     dlAnchorElem.setAttribute("href",     dataStr     );
@@ -196,7 +226,7 @@ class NpiUsers extends Component {
   
   onJsonDownload = (storageObj) => {
     const isOrg = storageObj.enumeration_type === "NPI-2";
-    let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name} ${storageObj.basic.last_name}`;
+    let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name || ''} ${storageObj.basic.last_name}`;
     nameDesc = nameDesc.replace(/ /g,"_")
     var fileName = `${nameDesc}.json`;
 
@@ -224,7 +254,7 @@ class NpiUsers extends Component {
     // const taxonomies = _.filter(products.taxonomies, {"primary": true});
     const taxonomies = products.taxonomies;
     const isOrg = products.enumeration_type === "NPI-2";
-    const nameDesc = isOrg ? products.basic.name : `${products.basic.first_name} ${products.basic.middle_name} ${products.basic.last_name}`;
+    const nameDesc = isOrg ? products.basic.name : `${products.basic.first_name} ${products.basic.middle_name || ""} ${products.basic.last_name}`;
     return <React.Fragment>
       <header className="intro-head">
       
@@ -272,42 +302,39 @@ class NpiUsers extends Component {
                     </div>
                     <div className="col-md-12">
                       <div className="table-responsive">
-                        <table className="table" style={{marginTop: "10px"}}>
-                          <thead>
-                          <tr className="bglight bg-warning">
-                            <td>&nbsp;</td>
-                            <td><h2 className="panel-title">Specialty</h2></td>
-                            <td className="nowrap width-150">Taxonomy Code</td>
-                            <td className="nowrap width-150"><span title="Medicare Specialty Code">State</span>
-                            </td>
-                            <td className="nowrap width-150"><span title="Medicare Provider Type">License</span>
-                            </td>
-                          </tr>
-                          </thead>
-                          <tbody>
+                        <Table className="table" style={{marginTop: "10px"}}>
+                          <Thead>
+                          <Tr className="bglight bg-warning">
+                            <Th ></Th>
+                            <Th ><h2 className="panel-title">Specialty</h2></Th>
+                            <Th className="nowrap width-150">Taxonomy Code</Th>
+                            <Th className="nowrap width-150"><span title="Medicare Specialty Code">State</span></Th>
+                            <Th className="nowrap width-150"><span title="Medicare Specialty Code">License</span></Th>
+                          </Tr>
+                          </Thead>
+                          <Tbody>
                           {
                             _.map(taxonomies, items => {
-                              return (<tr key={items.code}>
-                                <td>
+                              return (<Tr key={items.code}>
+                                <Td>
                                   {items.primary &&
                                   <span className="glyphicon glyphicon-star" title="Primary Specialty"></span>}
-                                </td>
-                                <td style={{"width": "100%"}} itemProp="medicalSpecialty" itemScope="">
+                                </Td>
+                                <Td style={{"width": "100%"}} itemProp="medicalSpecialty" itemScope="">
                                   <h3 style={{"margin": 0, "fontSize": "medium"}}>
                                     <span itemProp="name">{items.desc}</span>
                                   </h3>
-                                </td>
-                                <td>
+                                </Td>
+                                <Td>
                                   <span>{items.code}</span>
-                                </td>
-                                <td className="text-right">{items.state}</td>
-                                <td>{items.license}</td>
-                              </tr>)
+                                </Td>
+                                <Td className="text-right">{items.state}</Td>
+                                <Td>{items.license}</Td>
+                              </Tr>)
                             })
                           }
-      
-                          </tbody>
-                        </table>
+                          </Tbody>
+                        </Table>
                       </div>
                       <small className="text-muted"><span className="glyphicon glyphicon-star"
                                                           title="Primary Specialty"></span> Indicates primary
@@ -324,7 +351,7 @@ class NpiUsers extends Component {
             </Row>
             <div className="row">
              
-              <div className="col-md-6">
+              <div className="col-lg-6">
                 <div className="panel panel-info">
                   <div className="panel-heading">
                     <h2 className="panel-title penalTitle">
@@ -332,54 +359,54 @@ class NpiUsers extends Component {
                   </div>
                   <div className="panel-body">
                     <div>
-                      <div className="table-responsive">
-                        <table className="table">
-                          <tbody>
-                          <tr>
-                            <td className="bglight bg-warning text-nowrap"><strong>NPI #</strong></td>
-                            <td style={{"width": "100%"}}><code className="lead">{products.number}</code></td>
-                          </tr>
+                      <div className="table-responsive detail-table">
+                        <Table className="table">
+                          <Tbody>
+                          <Tr>
+                            <Td className="bglight bg-warning text-nowrap"><strong>NPI #</strong></Td>
+                            <Td style={{"width": "100%"}}><code className="lead">{products.number}</code></Td>
+                          </Tr>
                           { isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning nowrap"><strong>LBN</strong>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap"><strong>LBN</strong>
                               <small>Legal business name</small>
-                            </td>
-                            <td><span>{products.basic.name}</span></td>
-                          </tr>
+                            </Td>
+                            <Td><span>{products.basic.name}</span></Td>
+                          </Tr>
                           }
                           { isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning nowrap"><strong>Authorized official</strong></td>
-                            <td>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap"><strong>Authorized official</strong></Td>
+                            <Td>
                               <span>
                                 {products.basic.authorized_official_first_name} {products.basic.authorized_official_last_name}
                                 - ({products.basic.authorized_official_title_or_position})
                               </span>
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                           }
                           
                           { !isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning"><strong>Status</strong></td>
-                            <td><span>{products.basic.status === "A" ? "Active" : "De-active"}</span></td>
-                          </tr>
+                          <Tr>
+                            <Td className="bglight bg-warning"><strong>Status</strong></Td>
+                            <Td><span>{products.basic.status === "A" ? "Active" : "De-active"}</span></Td>
+                          </Tr>
                           }
                           { !isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning"><strong>Credentials</strong></td>
-                            <td><span>{products.basic.credentials}</span></td>
-                          </tr>
+                          <Tr>
+                            <Td className="bglight bg-warning"><strong>Credentials</strong></Td>
+                            <Td><span>{products.basic.credentials}</span></Td>
+                          </Tr>
                           }
                           { !isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning"><strong>Gender</strong></td>
-                            <td><span>{ products.basic.gender === "M"? "Male" : "Female"}</span></td>
-                          </tr>
+                          <Tr>
+                            <Td className="bglight bg-warning"><strong>Gender</strong></Td>
+                            <Td><span>{ products.basic.gender === "M"? "Male" : "Female"}</span></Td>
+                          </Tr>
                           }
-                          <tr>
-                            <td className="bglight bg-warning nowrap"><strong>Mailing Address</strong></td>
-                            <td>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap"><strong>Mailing Address</strong></Td>
+                            <Td>
                               <span>
                                 {mailing_address.address_1},< br />
                                 {mailing_address.city}, {mailing_address.state} {this.getPostCode(mailing_address.postal_code)}< br />
@@ -389,11 +416,11 @@ class NpiUsers extends Component {
                                 <a target="_blank" href={`https://maps.google.com/?q=${mailing_address.address_1}, ${mailing_address.city}, ${mailing_address.state} ${this.getPostCode(mailing_address.postal_code)}, ${mailing_address.country_code}`}>
                                 View on map</a>
                               </span>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="bglight bg-warning nowrap"><strong>Primary Practice Address</strong></td>
-                            <td>
+                            </Td>
+                          </Tr>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap"><strong>Primary Practice Address</strong></Td>
+                            <Td>
                               <span>
                                 {address.address_1},< br />
                                 {address.city}, {address.state} {postal_code}< br />
@@ -402,14 +429,14 @@ class NpiUsers extends Component {
                               <br />
                               <a target="_blank" href={`https://maps.google.com/?q=${address.address_1}, ${address.city}, ${address.state} ${this.getPostCode(address.postal_code)}, ${address.country_code}`}>
                                 View on map</a>
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                           {
                             _.map(products.practiceLocations, (location, index) =>{
                               return(
-                                <tr>
-                                  <td className="bglight bg-warning nowrap"><strong>Practice Address{index + 1}</strong></td>
-                                  <td>
+                                <Tr>
+                                  <Td className="bglight bg-warning nowrap"><strong>Practice Address{index + 1}</strong></Td>
+                                  <Td>
                                 <span>
                                   {location.address_1},< br />
                                   {location.city}, {location.state} {this.getPostCode(location.postal_code)}< br />
@@ -418,88 +445,88 @@ class NpiUsers extends Component {
                                     <br />
                                     <a target="_blank" href={`https://maps.google.com/?q=${location.address_1}, ${location.city}, ${location.state} ${this.getPostCode(location.postal_code)}, ${location.country_code}`}>
                                       View on map</a>
-                                  </td>
-                                </tr>
+                                  </Td>
+                                </Tr>
                               )
                             })
                           }
-                          <tr>
-                            <td className="bglight bg-warning"><strong>Entity</strong></td>
-                            <td><span>{isOrg ? "Organization": "Individual"}</span></td>
-                          </tr>
+                          <Tr>
+                            <Td className="bglight bg-warning"><strong>Entity</strong></Td>
+                            <Td><span>{isOrg ? "Organization": "Individual"}</span></Td>
+                          </Tr>
                           { isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning nowrap"><strong>Organization subpart</strong> <sup>1</sup></td>
-                            <td>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap"><strong>Organization subpart</strong> <sup>1</sup></Td>
+                            <Td>
                               <span>
                                 {products.basic.organizational_subpart}
                               </span>
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                           }
-                          <tr>
-                            <td className="bglight bg-warning nowrap"><strong>Enumeration date</strong></td>
-                            <td style={{"width": "100%"}}><span>{products.basic.enumeration_date}</span></td>
-                          </tr>
-                          <tr>
-                            <td className="bglight bg-warning nowrap text-nowrap"><strong>Last updated</strong></td>
-                            <td>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap"><strong>Enumeration date</strong></Td>
+                            <Td style={{"width": "100%"}}><span>{products.basic.enumeration_date}</span></Td>
+                          </Tr>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap text-nowrap"><strong>Last updated</strong></Td>
+                            <Td>
                               <span>{products.basic.last_updated} - <small>About&nbsp; {moment(moment(products.basic.last_updated)).fromNow()}</small></span>
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                           { !isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning nowrap text-nowrap"><strong>Sole proprietor</strong></td>
-                            <td>
+                          <Tr>
+                            <Td className="bglight bg-warning nowrap text-nowrap"><strong>Sole proprietor</strong></Td>
+                            <Td>
                               <span>{products.basic.sole_proprietor} </span>
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                           }
-                          <tr>
-                            <td className="bglight bg-warning"><strong>Identifiers</strong></td>
-                            <td>
+                          <Tr>
+                            <Td className="bglight bg-warning"><strong>Identifiers</strong></Td>
+                            <Td>
                               <div className="table-not-responsive">
                                 {products.identifiers.length <= 0 ? "Not Available" :
-                                  <table className="table table-condensed">
-                                    <thead>
-                                      <tr>
-                                        <th>State</th>
-                                        <th>Name</th>
-                                        <th>Identifier</th>
-                                        <th>Issuer</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
+                                  <Table className="table table-condensed">
+                                    <Thead>
+                                      <Tr>
+                                        <Th>State</Th>
+                                        <Th>Name</Th>
+                                        <Th>Identifier</Th>
+                                        <Th>Issuer</Th>
+                                      </Tr>
+                                    </Thead>
+                                    <Tbody>
                                     {
                                       _.map(products.identifiers, identifiers => {
                                         return (
-                                          <tr>
-                                            <td style={{"border":0}}>{identifiers.state}</td>
-                                            <td style={{"border":0}} className="nowrap">{identifiers.desc} #</td>
-                                            <td style={{"border":0}}><span className="text-danger nowrap">{identifiers.identifier}</span></td>
-                                            <td style={{"border": 0, "width": "100%"}}>{identifiers.issuer}</td>
-                                          </tr>
+                                          <Tr>
+                                            <Td style={{"border":0}}>{identifiers.state}</Td>
+                                            <Td style={{"border":0}} className="nowrap">{identifiers.desc} #</Td>
+                                            <Td style={{"border":0}}><span className="text-danger nowrap">{identifiers.identifier}</span></Td>
+                                            <Td style={{"border": 0, "width": "100%"}}>{identifiers.issuer}</Td>
+                                          </Tr>
                                         )
                                       })
                                     }
-                                    </tbody>
-                                  </table>
+                                    </Tbody>
+                                  </Table>
                                 }
                               </div>
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                           { !isOrg &&
-                          <tr>
-                            <td className="bglight bg-warning text-nowrap"><strong>Hospital affiliation(s)</strong></td>
-                            <td>
+                          <Tr>
+                            <Td className="bglight bg-warning text-nowrap"><strong>Hospital affiliation(s)</strong></Td>
+                            <Td>
                               <div className="table-not-responsive">
                                 Not Available
                               </div>
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                           }
-                          </tbody>
-                        </table>
+                          </Tbody>
+                        </Table>
                       </div>
                       <div className="div10"></div>
                     </div>
@@ -519,7 +546,7 @@ class NpiUsers extends Component {
                   </div>
                 </div>
               </div>
-              <div className="col-md-6">
+              <div className="col-lg-6" style={{"height": "550px", "border": 0}}>
                 <iframe style={{"width": "100%", "border": 0}} height="550" id="map"
                         src={`https://www.google.com/maps/embed/v1/place?q=${address.address_1}, ${address.city}, ${address.state} ${postal_code}, ${address.country_code}&key=AIzaSyDqxmTSwRFA9OOzLYP38Eqp1C9R8UlrIxo`}></iframe>
               </div>
@@ -533,7 +560,7 @@ class NpiUsers extends Component {
       </header>
     </React.Fragment>
       ;
-    const name = isOrg ? products.basic.name : `${products.basic.first_name} ${products.basic.middle_name} ${products.basic.last_name}`;
+    const name = isOrg ? products.basic.name : `${products.basic.first_name} ${products.basic.middle_name || ''} ${products.basic.last_name}`;
   }
 }
 

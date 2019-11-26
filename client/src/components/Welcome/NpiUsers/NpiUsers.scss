@@ -72,6 +72,12 @@ header.intro-head {
     width: 1370px !important;
   }
 }
+@media (max-width: 1248px){
+  .container {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}
 
 @media(min-width: 768px) {
   header.intro {
