@@ -293,9 +293,12 @@ class NpiUsers extends Component {
                         itemProp="faxNumber">{address.fax_number}</span><br />
                         <span className="glyphicon glyphicon-globe" title="Website"></span> Website:
                         <br />
-                        {products &&  <button className="btn btn-primary" onClick={() => {this.onJsonDownload(products);}} >Export as JSON</button> }
-                        {products && stringData &&  <CSVLink className="btn btn-info ml-15" data={ stringData || []} target="_blank" filename={`${nameDesc}.csv`} >Export as CSV</CSVLink> }
-                        <a id="downloadCSV" className="hide" />
+                        <div className="btn-group-t">
+                          {products &&  <button className="btn btn-primary" onClick={() => {this.onJsonDownload(products);}} >Export as JSON</button> }
+                          {products && stringData &&  <CSVLink className="btn btn-info ml-15" data={ stringData || []} target="_blank" filename={`${nameDesc}.csv`} >Export as CSV</CSVLink> }
+                          <a id="downloadCSV" className="hide" />
+                          
+                        </div>
                         <div style={{height: "30px"}}></div> <br />
                       </div>
                       
