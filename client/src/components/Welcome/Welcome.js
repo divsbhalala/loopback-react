@@ -26,15 +26,18 @@ const API_URL = 'http://54.174.244.177:3003/api';
 class Welcome extends Component {
   constructor(props) {
     super(props);
-
+    {console.log({props})}
+    const queryStaring = window.location.search.slice(1);
+    const params = new URLSearchParams(queryStaring);
+    console.log({fl: params.get('filter')});
     this.state = {
-      filter: {},
+      filter: params.get('filter') ? JSON.parse(params.get('filter')) : {},
       products: [],
       loading: true,
-      searched: false,
+      searched: params.get('filter') || false,
       pages: 1,
       activeTab: '1',
-      pageSize: 20,
+      pageSize: params.get('pageSize') || 20,
       state: {
         "AL": "Alabama",
         "AK": "Alaska",
@@ -98,12 +101,21 @@ class Welcome extends Component {
       }
     };
   }
+  
+  async componentDidMount() {
+    const queryStaring = window.location.search.slice(1);
+    const params = new URLSearchParams(queryStaring);
+    const filter = params.get('filter') ? JSON.parse(params.get('filter')) : null;
+    const {pageSize} = this.state
+    this.getData(filter, params.get('page') || 0, pageSize);
+  }
 
   getData = async (query, page, pageSize) => {
     if(cancel){
       cancel();
     }
     // const { pages, pageSize } = this.state;
+   
     const response = await axios.get(`${API_URL}/users/data?query=${query ? JSON.stringify(query) : JSON.stringify(query)}&cache=120`, {
       headers: {authorization: localStorage.getItem('token')},
       cancelToken: new CancelToken(function executor(c) {
@@ -142,6 +154,10 @@ class Welcome extends Component {
     filter.limit = state.pageSize;
     filter.skip = state.page *  state.pageSize;
     this.setState({ loading: true });
+    this.props.history.push({
+      pathname: '/',
+      search: `filter=${JSON.stringify(filter)}&page=${state.page}&pageSize=${state.pageSize}`
+    })
     await this.getData(filter, state.page, state.pageSize);
     this.setState({ loading: false });
   };
@@ -184,6 +200,7 @@ class Welcome extends Component {
       filter,
       searched: true
     });
+    // this.props.history.push(`/?query=${JSON.stringify(filter)}`)
     if(searched){
       this.fetchData({
         pageSize: 20,
@@ -243,7 +260,7 @@ class Welcome extends Component {
         Cell: props => {
           return(
             <span className='number'>
-              <Link to={`users/${props.original.number}`}>{`${props.original.basic.name}`}</Link>
+              <Link target="_blank" to={`users/${props.original.number}`}>{`${props.original.basic.name}`}</Link>
             </span>
           )
         }
@@ -384,12 +401,13 @@ class Welcome extends Component {
           {searched &&
           <ReactTable
             manual
-            pages={products.length <= 20 ? 1 : pages}
+            pages={products.length < 20 ? 1 : pages}
+            pageSizeOptions= {[20, 25, 50, 100]}
             data={ products }
             columns={ columns }
             loading={loading}
             onFetchData={this.fetchData}
-            defaultPageSize={products.length < 20 ? products.length : pageSize}
+            defaultPageSize={100}
             className="-striped -highlight"
           />
           }

@@ -294,7 +294,7 @@ class NpiUsers extends Component {
                         <span className="glyphicon glyphicon-globe" title="Website"></span> Website:
                         <br />
                         <div className="btn-group-t">
-                          {products &&  <button className="btn btn-primary" onClick={() => {this.onJsonDownload(products);}} >Export as JSON</button> }
+                          {products &&  <button className="btn btn-primary" onClick={() => {this.onJsonDownload(products);}} >Export as FHIR</button> }
                           {products && stringData &&  <CSVLink className="btn btn-info ml-15" data={ stringData || []} target="_blank" filename={`${nameDesc}.csv`} >Export as CSV</CSVLink> }
                           <a id="downloadCSV" className="hide" />
                           
@@ -371,8 +371,7 @@ class NpiUsers extends Component {
                           </Tr>
                           { isOrg &&
                           <Tr>
-                            <Td className="bglight bg-warning nowrap"><strong>LBN</strong>
-                              <small>Legal business name</small>
+                            <Td className="bglight bg-warning nowrap"><strong>Legal business name</strong>
                             </Td>
                             <Td><span>{products.basic.name}</span></Td>
                           </Tr>
