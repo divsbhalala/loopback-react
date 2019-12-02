@@ -6262,6 +6262,15 @@ h2.penal-title {
     min-width: 100% !important;
   }
 }
+@media (max-width: 360px){
+  .btn-group-t{
+    display: inline-block !important;
+    .btn{
+      margin-left: 15px;
+      margin-top: 10px;
+    }
+  }
+}
 @media (max-width: 40em){
   .responsiveTable td .tdBefore {
     //background-color: #d9edf7 !important;
@@ -6279,6 +6288,50 @@ h2.penal-title {
     width: 100%;
     display: inline-block;
   }
+  .tbl-info{
+    table {
+      margin-top: 0 !important;
+      > tbody{
+        > tr{
+          > td:nth-child(2){
+            display: inline-block;
+            .tdBefore{
+              display: inline-block;
+              position: relative;
+              left: 0;
+              width: 100%;
+            }
+            h3{
+              font-weight: normal !important;
+            }
+          }
+          td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5){
+            .tdBefore{
+              border-bottom: 1px solid;
+            }
+          }
+
+        }
+        td{
+          display: block;
+          .tdBefore{
+            display: block;
+            position: relative;
+            left: 0;
+            width: 100%;
+          }
+          &.pivoted{
+            padding-left: 15px !important;
+            p{
+               word-break: break-word;
+              white-space: initial;
+            }
+          }
+        }
+      }
+    }
+  }
+
 }
 .nowrap {
   white-space: nowrap;

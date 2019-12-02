@@ -304,7 +304,7 @@ class NpiUsers extends Component {
                       
                     </div>
                     <div className="col-md-12">
-                      <div className="table-responsive">
+                      <div className="table-responsive tbl-info">
                         <Table className="table" style={{marginTop: "10px"}}>
                           <Thead>
                           <Tr className="bglight bg-warning">
@@ -325,11 +325,11 @@ class NpiUsers extends Component {
                                 </Td>
                                 <Td style={{"width": "100%"}} itemProp="medicalSpecialty" itemScope="">
                                   <h3 style={{"margin": 0, "fontSize": "medium"}}>
-                                    <span itemProp="name">{items.desc}</span>
+                                    <p itemProp="name">{items.desc}</p>
                                   </h3>
                                 </Td>
                                 <Td>
-                                  <span>{items.code}</span>
+                                  <p>{items.code}</p>
                                 </Td>
                                 <Td className="text-right">{items.state}</Td>
                                 <Td>{items.license}</Td>
