@@ -23,6 +23,13 @@ let cancel;
 
 const API_URL = 'http://54.174.244.177:3003/api';
 
+const aAndOrB = (value, ctx) => {
+  if (!ctx.city && ctx.state) {
+    return "City is required";
+  }
+  return true;
+}
+
 class Welcome extends Component {
   constructor(props) {
     super(props);
@@ -37,7 +44,7 @@ class Welcome extends Component {
       searched: params.get('filter') || false,
       pages: 1,
       activeTab: '1',
-      pageSize: params.get('pageSize') || 20,
+      pageSize: params.get('pageSize') || 100,
       state: {
         "AL": "Alabama",
         "AK": "Alaska",
@@ -124,7 +131,7 @@ class Welcome extends Component {
       })
     });
     const sortedData = response.data.data && response.data.data.results ? response.data.data.results : [];
-    pageSize = sortedData.length >=20 ? pageSize : sortedData.length;
+    pageSize = sortedData.length >=100 ? pageSize : sortedData.length;
     const data = sortedData.slice(pageSize * page, pageSize * page + pageSize);
     this.setState({
       loading: false,
@@ -203,7 +210,7 @@ class Welcome extends Component {
     // this.props.history.push(`/?query=${JSON.stringify(filter)}`)
     if(searched){
       this.fetchData({
-        pageSize: 20,
+        pageSize: 100,
         page: 0
       })
     }
@@ -234,6 +241,11 @@ class Welcome extends Component {
         activeTab: tab
       });
     }
+  }
+  
+  validateCityState = () => {
+    this.form.validateInput('state');
+    this.form.validateInput('city');
   }
   
   render() {
@@ -372,10 +384,13 @@ class Welcome extends Component {
                 <Col md={6}>
                   <Row>
                     <Col md={6} className="text-left">
-                      <AvField name="city" label="City"  type="text" placeholder="City" />
+                      <AvField name="city" label="City"  type="text" placeholder="City" validate={{myValidation: aAndOrB}} onChange={this.validateCityState} />
                     </Col>
                     <Col md={6} className="text-left">
-                      <AvField type="select" name="state" label="State">
+                      <AvField type="select" name="state" label="State"
+                               validate={{myValidation: aAndOrB}}
+                               onChange={this.validateCityState}
+                      >
                         <option />
                         {
                           _.map(this.state.state, (value, key) => <option value={key}>{value}</option>)
@@ -401,7 +416,7 @@ class Welcome extends Component {
           {searched &&
           <ReactTable
             manual
-            pages={products.length < 20 ? 1 : pages}
+            pages={products.length < 100 ? 1 : pages}
             pageSizeOptions= {[20, 25, 50, 100]}
             data={ products }
             columns={ columns }
