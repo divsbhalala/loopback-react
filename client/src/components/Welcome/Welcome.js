@@ -437,7 +437,7 @@ class Welcome extends Component {
 
         </div>
         <div className="container">
-          {searched && <CSVLink data={results || []} target="_blank" filename={"my-file.csv"} >Export as CSV</CSVLink> }
+          {searched && !searched && <CSVLink data={results || []} target="_blank" filename={"my-file.csv"} >Export as CSV</CSVLink> }
           {searched &&
           <ReactTable
             manual
