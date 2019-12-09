@@ -13,7 +13,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { CSVLink, CSVDownload } from "react-csv";
 import headerImg from "./fb_final_01.jpg";
 import { Button, Form, FormGroup, Label, Input, FormText, Row, Col,
-  TabContent, TabPane, Nav, NavItem, NavLink, Card, CardTitle, CardText
+  TabContent, TabPane, Nav, NavItem, NavLink, Card, CardTitle, CardText, Alert
 } from 'reactstrap';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
 
@@ -108,7 +108,7 @@ class Welcome extends Component {
       }
     };
   }
-  
+
   async componentDidMount() {
     const queryStaring = window.location.search.slice(1);
     const params = new URLSearchParams(queryStaring);
@@ -122,7 +122,7 @@ class Welcome extends Component {
       cancel();
     }
     // const { pages, pageSize } = this.state;
-   
+
     const response = await axios.get(`${API_URL}/users/data?query=${query ? JSON.stringify(query) : JSON.stringify(query)}&cache=120`, {
       headers: {authorization: localStorage.getItem('token')},
       cancelToken: new CancelToken(function executor(c) {
@@ -150,7 +150,7 @@ class Welcome extends Component {
           "Name": item.basic.name,
           "Credential": item.basic.credential,
           "City/State": `${address.city}, ${address.state}`,
-          "Taxonomie": tmp,
+          "Taxonomy": tmp,
         };
       }),
       pages: sortedData ? Math.ceil(sortedData.length/0) : 1
@@ -168,7 +168,7 @@ class Welcome extends Component {
     await this.getData(filter, state.page, state.pageSize);
     this.setState({ loading: false });
   };
-  
+
   onSubmit = (e, values) => {
     const { searched } = this.state;
     e.preventDefault();
@@ -181,7 +181,7 @@ class Welcome extends Component {
       if(values.first_name && values.first_name.length){
         filter.first_name =  values.first_name.length >= 2 ? `*${values.first_name}*` :  values.first_name;
       }
-    
+
       if(values.last_name && values.last_name.length){
         filter.last_name =  values.last_name.length >= 2 ? `*${values.last_name}*` :  values.last_name;
       }
@@ -203,20 +203,27 @@ class Welcome extends Component {
       filter.taxonomy_description =  values.taxonomy_description.length >= 2 ? `*${values.taxonomy_description}*` :  values.taxonomy_description
     }
     console.log({filter});
-    this.setState({
-      filter,
-      searched: true
-    });
-    // this.props.history.push(`/?query=${JSON.stringify(filter)}`)
-    if(searched){
-      this.fetchData({
-        pageSize: 100,
-        page: 0
+    if(!(filter.number || filter.first_name || filter.last_name || filter.organization_name || filter.city || filter.state || filter.taxonomy_description)){
+      this.setState({
+        error: true
       })
     }
-  
+    else {
+      this.setState({
+        filter,
+        searched: true,
+        error: false
+      });
+      // this.props.history.push(`/?query=${JSON.stringify(filter)}`)
+      if(searched){
+        this.fetchData({
+          pageSize: 100,
+          page: 0
+        })
+      }
+    }
   };
-  
+
   bodyComponent = (tableState) => {
     return(
       <Scrollbars
@@ -234,7 +241,7 @@ class Welcome extends Component {
       </Scrollbars>
     );
   };
-  
+
   toggle = (tab) => {
     if (this.state.activeTab !== tab) {
       this.setState({
@@ -242,12 +249,25 @@ class Welcome extends Component {
       });
     }
   }
-  
+
   validateCityState = () => {
     this.form.validateInput('state');
     this.form.validateInput('city');
   }
-  
+
+  reset = () => {
+    this.form && this.form.reset();
+    this.setState({
+      products: [],
+      filter: {},
+      searched: false,
+      error: false
+    });
+    this.props.history.push({
+      pathname: '/',
+    })
+  }
+
   render() {
     const { loading , products, pages, pageSize, searched, activeTab, results} = this.state;
     // const { products } = this.props;
@@ -278,7 +298,7 @@ class Welcome extends Component {
         }
       },
       {
-        Header: 'Credentials',
+        Header: 'Phone Number',
         accessor: 'basic.credential',
         width: 150,
         minResizeWidth: 10,
@@ -292,7 +312,7 @@ class Welcome extends Component {
         Cell: props => {
           const address = _.find(props.original.addresses, {"address_purpose": "LOCATION"});
           if(address){
-  
+
             return(<span className='number'>{address.city}, {address.state}</span>)
           }
           return(<span className='number'>-</span>)
@@ -317,7 +337,7 @@ class Welcome extends Component {
     ];
     return <React.Fragment>
       <header className="intro">
-        
+
         <div className="container">
           <div className="form-container">
             <Row>
@@ -326,6 +346,7 @@ class Welcome extends Component {
                   <img src={headerImg} style={{"width": "100%"}} />
                 </div>
                 <hr />
+                <h3>Search by NPI, Name, Location and Taxonomy</h3>
               </Col>
             </Row>
             <AvForm onValidSubmit={this.onSubmit} ref={c => (this.form = c)}>
@@ -377,7 +398,7 @@ class Welcome extends Component {
                       </FormGroup>
                     </TabPane>
                   </TabContent>
-                  
+
                 </Col>
               </Row>
               <Row form>
@@ -388,7 +409,6 @@ class Welcome extends Component {
                     </Col>
                     <Col md={6} className="text-left">
                       <AvField type="select" name="state" label="State"
-                               validate={{myValidation: aAndOrB}}
                                onChange={this.validateCityState}
                       >
                         <option />
@@ -400,16 +420,21 @@ class Welcome extends Component {
                   </Row>
                 </Col>
                 <Col md={6} className="text-left">
-                  <AvField name="taxonomy_description" label="Taxonomy"  type="text" placeholder="Taxonomy Desc" />
+                  <AvField name="taxonomy_description" label="Taxonomy (first 4 letters)"  type="text" placeholder="Taxonomy Desc" />
                 </Col>
               </Row>
-              
-              
+              {this.state.error &&
+                <Alert color="danger" isOpen fade={false}>
+                  "Please enter one of the search filters to continue
+                </Alert>
+              }
+
+
               <Button color="primary" type="submit">Search</Button>
-              <Button type="reset" className="m-l-15" onClick={() => {this.form && this.form.reset();}}>Reset</Button>
+              <Button type="reset" className="m-l-15" onClick={this.reset}>Reset</Button>
             </AvForm>
           </div>
-          
+
         </div>
         <div className="container">
           {searched && <CSVLink data={results || []} target="_blank" filename={"my-file.csv"} >Export as CSV</CSVLink> }

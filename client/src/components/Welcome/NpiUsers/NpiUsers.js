@@ -25,14 +25,14 @@ const API_URL = 'http://54.174.244.177:3003/api';
 class NpiUsers extends Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       filter: {},
       products: null,
       loading: true,
     };
   }
-  
+
   getUserData() {
     let id = this.props.match.params.id;
     console.log({id});
@@ -40,15 +40,16 @@ class NpiUsers extends Component {
       this.getData({"number": id});
     //this.setState({ folder: params.folder || 'sketches' }, (folder) => this.loadProjects(this.state.folder));
   }
-  
+
   componentDidMount() {
     this.getUserData()
   }
-  
+
   getData = async (query) => {
     if (cancel) {
       cancel();
     }
+    const self = this;
     const response = await axios.get(`${API_URL}/users/data?query=${query ? JSON.stringify(query) : JSON.stringify(query)}`, {
       headers: {authorization: localStorage.getItem('token')},
       cancelToken: new CancelToken(function executor(c) {
@@ -57,7 +58,7 @@ class NpiUsers extends Component {
       })
     });
     console.log({d: response.data.data.results})
-    
+
     const sortedData = response.data.data && response.data.data.results ? response.data.data.results[0] : {};
     const isOrg = sortedData.enumeration_type === "NPI-2";
     const nameDesc = isOrg ? sortedData.basic.name : `${sortedData.basic.first_name} ${sortedData.basic.middle_name || ''} ${sortedData.basic.last_name}`;
@@ -117,7 +118,7 @@ class NpiUsers extends Component {
         authorized_official_telephone_number: sortedData.basic.authorized_official_telephone_number,
         authorized_official_title_or_position: sortedData.basic.authorized_official_title_or_position,
       }
-  
+
       _.forEach(sortedData.identifiers, function(identifiers, index) {
         _.forEach(identifiers, function(value, key) {
           stringData[`identifiers_${index + 1} ${key}`] = value;
@@ -174,7 +175,7 @@ class NpiUsers extends Component {
         "name" : nameDesc, // C? Name used for the organization
         "gender" : gender, // male | female | other | unknown
       }
- 
+
       _.forEach(sortedData.identifiers, function(identifiers, index) {
         _.forEach(identifiers, function(value, key) {
           stringData[`identifiers_${index + 1} ${key}`] = value;
@@ -182,14 +183,14 @@ class NpiUsers extends Component {
       });
       _.forEach(sortedData.taxonomies, function(taxonomies, index) {
         _.forEach(taxonomies, function(value, key) {
-          stringData[`taxonomies_${index + 1} ${key}`] = value;
+          stringData[`taxonomy_${index + 1} ${key}`] = value;
         })
       });
-      
+
       _.map(sortedData.addresses, (address, index) => {
         _.forEach(address, function(value, key) {
           if(key === 'postal_code'){
-            stringData[`address_${index + 1} ${key}`] =  value.substring(0,5);
+            stringData[`address_${index + 1} ${key}`] =  self.get5DigitPostCode(value);
           }
           else
           {
@@ -198,7 +199,7 @@ class NpiUsers extends Component {
         });
       });
     }
-   
+
     this.setState({
       loading: false,
       products: sortedData,
@@ -206,12 +207,15 @@ class NpiUsers extends Component {
       json: data
     })
   };
-  
+
   getPostCode = (number) => {
     const chuncks = number.match(/.{1,5}/g);
    return  chuncks.join("-");
   }
-  
+  get5DigitPostCode = (number) => {
+   return  number && number.substring(0,5);
+  }
+
   onJsonDownload1 = (storageObj) => {
     const isOrg = storageObj.enumeration_type === "NPI-2";
     let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name || ''} ${storageObj.basic.last_name}`;
@@ -222,8 +226,8 @@ class NpiUsers extends Component {
     dlAnchorElem.setAttribute("download", `${nameDesc}.json`);
     dlAnchorElem.click();
   }
-  
-  
+
+
   onJsonDownload = (storageObj) => {
     const isOrg = storageObj.enumeration_type === "NPI-2";
     let nameDesc = isOrg ? storageObj.basic.name : `${storageObj.basic.first_name} ${storageObj.basic.middle_name || ''} ${storageObj.basic.last_name}`;
@@ -239,8 +243,8 @@ class NpiUsers extends Component {
     // Save the file
     saveAs(fileToSave, fileName);
   }
-  
-  
+
+
   render() {
     const {products, json, stringData} = this.state;
     if (!products) {
@@ -257,7 +261,7 @@ class NpiUsers extends Component {
     const nameDesc = isOrg ? products.basic.name : `${products.basic.first_name} ${products.basic.middle_name || ""} ${products.basic.last_name}`;
     return <React.Fragment>
       <header className="intro-head">
-      
+
         <div className="container">
           <div className="form-container">
             <Row>
@@ -285,7 +289,7 @@ class NpiUsers extends Component {
                           <span>{address.address_1}</span><br />
                           {address.address_2 && [<span>{address.address_2}</span>, <br />]}
                           <span>{address.city}</span>, <span>{address.state}</span> &nbsp;&nbsp;
-                          <span>{address.postal_code}</span>
+                          <span>{this.get5DigitPostCode(address.postal_code)}</span>
                         </address>
                         <span className="glyphicon glyphicon-phone-alt" title="Phone"></span> Phone: <span
                         itemProp="telephone">{address.telephone_number}</span><br />
@@ -297,11 +301,11 @@ class NpiUsers extends Component {
                           {products &&  <button className="btn btn-primary" onClick={() => {this.onJsonDownload(products);}} >Export as FHIR</button> }
                           {products && stringData &&  <CSVLink className="btn btn-info ml-15" data={ stringData || []} target="_blank" filename={`${nameDesc}.csv`} >Export as CSV</CSVLink> }
                           <a id="downloadCSV" className="hide" />
-                          
+
                         </div>
                         <div style={{height: "30px"}}></div> <br />
                       </div>
-                      
+
                     </div>
                     <div className="col-md-12">
                       <div className="table-responsive tbl-info">
@@ -345,7 +349,7 @@ class NpiUsers extends Component {
                       </small>
                       <div className="div20"></div>
                     </div>
-                    
+
                     <div className="clearfix"></div>
                     <hr />
                   </div>
@@ -353,7 +357,7 @@ class NpiUsers extends Component {
               </Col>
             </Row>
             <div className="row">
-             
+
               <div className="col-lg-6">
                 <div className="panel panel-info">
                   <div className="panel-heading">
@@ -387,7 +391,7 @@ class NpiUsers extends Component {
                             </Td>
                           </Tr>
                           }
-                          
+
                           { !isOrg &&
                           <Tr>
                             <Td className="bglight bg-warning"><strong>Status</strong></Td>
@@ -411,9 +415,9 @@ class NpiUsers extends Component {
                             <Td>
                               <span>
                                 {mailing_address.address_1},< br />
-                                {mailing_address.city}, {mailing_address.state} {this.getPostCode(mailing_address.postal_code)}< br />
+                                {mailing_address.city}, {mailing_address.state} {this.get5DigitPostCode(mailing_address.postal_code)}< br />
                                 Phone: {mailing_address.telephone_number} | Fax: {mailing_address.fax_number}
-  
+
                                 < br />
                                 <a target="_blank" href={`https://maps.google.com/?q=${mailing_address.address_1}, ${mailing_address.city}, ${mailing_address.state} ${this.getPostCode(mailing_address.postal_code)}, ${mailing_address.country_code}`}>
                                 View on map</a>
@@ -441,7 +445,7 @@ class NpiUsers extends Component {
                                   <Td>
                                 <span>
                                   {location.address_1},< br />
-                                  {location.city}, {location.state} {this.getPostCode(location.postal_code)}< br />
+                                  {location.city}, {location.state} {this.get5DigitPostCode(location.postal_code)}< br />
                                   Phone: {location.telephone_number} | Fax: {location.fax_number}
                                 </span>
                                     <br />
@@ -553,9 +557,9 @@ class NpiUsers extends Component {
                         src={`https://www.google.com/maps/embed/v1/place?q=${address.address_1}, ${address.city}, ${address.state} ${postal_code}, ${address.country_code}&key=AIzaSyDqxmTSwRFA9OOzLYP38Eqp1C9R8UlrIxo`}></iframe>
               </div>
             </div>
-        
+
           </div>
-      
+
         </div>
         <div className="container">
         </div>
