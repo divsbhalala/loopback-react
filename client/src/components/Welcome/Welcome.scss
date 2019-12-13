@@ -82,6 +82,12 @@ header.intro {
 .ml-15{
   margin-left: 15px;
 }
+.select-wrap.-pageSizeOptions{
+  display: none;
+}
+#root > div > header > div:nth-child(2) > div > div.pagination-bottom > div > div.-center > span.-pageInfo > div > input[type=number]{
+  border: none;
+}
 @media (max-width: 1200px){
   .container {
     width: 1370px;

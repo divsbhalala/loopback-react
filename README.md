@@ -1,16 +1,5 @@
-# loopback-react
-loopback (mongodb) - react, router, redux, axios, formik, bootstrap 4 (reactstrap) fullstack playground with authentication and user management
-
-This a full stack playground for developing a Loopback - React application. And it's _under the development_ still.
-
-For more info you can check:
-- https://loopback.io/doc/en/lb3/index.html
-- https://github.com/facebook/create-react-app
-- https://reacttraining.com/react-router/web/guides/philosophy
-- https://redux.js.org/
-- https://github.com/jaredpalmer/formik
-- https://getbootstrap.com/docs/4.1/getting-started/introduction/
-- https://reactstrap.github.io/
+# providersearch
+Provider Hub Connect - Provider Search
 
 ### Install
 ```

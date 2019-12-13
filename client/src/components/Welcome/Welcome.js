@@ -302,7 +302,10 @@ class Welcome extends Component {
         accessor: 'basic.credential',
         width: 150,
         minResizeWidth: 10,
-        Cell: props => <span className='number'>{props.original.basic.credential}</span>
+        Cell: props => {
+          const address = _.find(props.original.addresses, {"address_purpose": "LOCATION"});
+          return(<span className='number'>{address.telephone_number}</span>)
+        }
       },
       {
         Header: 'City/State',
@@ -321,13 +324,13 @@ class Welcome extends Component {
       {
         Header: 'Taxonomy',
         accessor: 'taxonomy',
-        width: 450,
-        minResizeWidth: 10,
+        minWidth: 200,
+        minResizeWidth: 200,
         Cell: props => {
           const taxonomies = props.original.taxonomies;
           if(taxonomies){
             const tmp = taxonomies.map(taxonomie =>
-            <div><p>{taxonomie.code}- {taxonomie.desc}</p></div>
+            <div><p>{taxonomie.desc}</p></div>
             );
             return(tmp)
           }
@@ -425,7 +428,7 @@ class Welcome extends Component {
               </Row>
               {this.state.error &&
                 <Alert color="danger" isOpen fade={false}>
-                  "Please enter one of the search filters to continue
+                  Please enter one of the search filters to continue
                 </Alert>
               }
 
@@ -442,7 +445,7 @@ class Welcome extends Component {
           <ReactTable
             manual
             pages={products.length < 100 ? 1 : pages}
-            pageSizeOptions= {[20, 25, 50, 100]}
+            // pageSizeOptions= {[20, 25, 50, 100]}
             data={ products }
             columns={ columns }
             loading={loading}
