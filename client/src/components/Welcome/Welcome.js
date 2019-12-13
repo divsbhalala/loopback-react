@@ -451,6 +451,7 @@ class Welcome extends Component {
             loading={loading}
             onFetchData={this.fetchData}
             defaultPageSize={100}
+            ofText=""
             className="-striped -highlight"
           />
           }
